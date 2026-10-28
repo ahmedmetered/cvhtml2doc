@@ -1,3 +1,8 @@
+---
+name: cv-rebuild
+description: Rebuild a reference document (CV, one-pager, certificate) faithfully in HTML/CSS, print it to a pixel-close PDF with a browser engine, numerically audit against the reference, and keep an editable DOCX twin. Use when someone says "match this PDF", "rebuild my CV in the same design", "the spacing is off", or asks for a document in both PDF and editable Word formats.
+---
+
 # skill: cv-rebuild
 
 Rebuild a reference document (CV, one-pager, certificate) faithfully in HTML/CSS,
