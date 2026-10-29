@@ -35,6 +35,11 @@ def main() -> None:
         sys.exit(__doc__)
     ref, new = pymupdf.open(args[0]), pymupdf.open(args[1])
     bad = 0
+    # CV-2: a rebuild that overflows to an extra page (or loses one) must fail
+    # loudly — pages beyond the shared range were previously unaudited.
+    if len(ref) != len(new):
+        print(f"PAGE COUNT MISMATCH: reference has {len(ref)} page(s), new has {len(new)} page(s)")
+        bad += 1
     for p in range(min(len(ref), len(new))):
         a, b = page_lines(ref[p]), page_lines(new[p])
         # match lines by text (fall back to nearest by order when texts differ)
@@ -45,7 +50,7 @@ def main() -> None:
             for i, (y2, s2, t2) in enumerate(b):
                 if i in used:
                     continue
-                if t == t:
+                if t == t2:
                     best = i
                     break
                 if best is None and abs(y2 - y) < tol * 3:

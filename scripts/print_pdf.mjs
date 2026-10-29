@@ -7,7 +7,7 @@
 //
 // Usage: node print_pdf.mjs input.html output.pdf
 import { spawnSync } from "node:child_process";
-import { existsSync } from "node:fs";
+import { existsSync, statSync } from "node:fs";
 import { resolve } from "node:path";
 
 const [html, pdf] = process.argv.slice(2);
@@ -46,5 +46,18 @@ const r = spawnSync(bin, [
 if (r.status !== 0) {
   console.error(`browser exited ${r.status}; if the PDF looks stale, delete it and retry (headless sometimes writes after exit)`);
   process.exit(r.status ?? 1);
+}
+// CV-3: verify the write actually landed — the README documents a late-write
+// flake where the browser exits before the file is complete.
+let stat;
+try {
+  stat = statSync(resolve(pdf));
+} catch {
+  console.error(`PDF was not written: ${pdf}`);
+  process.exit(1);
+}
+if (Date.now() - stat.mtimeMs > 30_000) {
+  console.error(`PDF at ${pdf} is stale (mtime predates this run) — delete it and retry.`);
+  process.exit(1);
 }
 console.log(`wrote ${pdf}`);
